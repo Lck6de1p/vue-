@@ -3,6 +3,9 @@
 		<ul class="ck-swiper-imglist">
 			<slot></slot>
 		</ul>
+		<ul class="ck-dot-wrapper">
+			<li class="ck-dot" v-for="item in imgItemLen" :key="item" :class="{'dot-active': item === now + 1}"></li>
+		</ul>
 	</div>
 </template>
 
@@ -129,5 +132,24 @@ ul {
 }
 .ck-swiper-imglist {
 	display: flex;
+}
+.ck-dot-wrapper {
+	position: absolute;
+	bottom: 30px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	.ck-dot {
+		width: 10px;
+		height: 10px;
+		margin: 0 5px;
+		border-radius: 10px;
+		background: #fff;
+		transition: 0.2s;
+		box-shadow: 0 0 3px 0 rgba(0,0,0,0.3);
+	}
+	.dot-active {
+		width: 20px;
+	}
 }
 </style>
