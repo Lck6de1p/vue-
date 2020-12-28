@@ -1,4 +1,4 @@
-# test-app
+# 简易vue轮播图组件
 
 ## Project setup
 ```
