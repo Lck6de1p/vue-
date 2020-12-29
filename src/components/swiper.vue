@@ -19,6 +19,10 @@ export default {
 		height: {
 			type: String,
 			default: 'auto'
+		},
+		delay: {
+			type: Number,
+			default: 2000
 		}
 	},
 	data() {
@@ -37,12 +41,44 @@ export default {
 			directionRight: 1, // 方向是否向右
 			hasNoImg: false,
 			imgItemLen: 0,
+			timer: null,
 		}
 	},
 	methods: {
-		listenSwiperClick() {
+		gotoNextImage() {
+			this.translatex = this.now * -this.swiperWidth;
+			this.listDom.style.transition = '0.3s';
+			this.listDom.style.transform = `translateX(${this.translatex}px)`;
+		},
+		timeInterval() {
+			let _this = this
+			this.timer = setInterval(() => {
+				if (this.now < this.imgItemLen - 1) {
+					this.now++
+					this.gotoNextImage()
+				} else {
+					this.listDom.style.transition = 'none'
+					this.swiperItemDom[this.imgItemLen - 1].style.transform = `translateX(${-this.swiperWidth * this.imgItemLen}px)`
+					this.listDom.style.transform = `translateX(${this.swiperWidth}px)`
 
+					new Promise((resolve) => {
+						setTimeout(() => {
+							_this.now = 0
+							_this.listDom.style.transition = '0.3s'
+							_this.listDom.style.transform = `translateX(0)`
+						})
+						setTimeout(() => {
+							resolve()
+						}, 400)
+					}).then(() => {
+						_this.listDom.style.transition = 'none'
+						_this.swiperItemDom[_this.imgItemLen - 1].style.transform = `translateX(0)`
+						_this.listDom.style.transform = `translateX(0)`
+					})
+				}
+			}, this.delay)
 		}
+
 	},
 	mounted() {
 		this.swiperDom = document.getElementsByClassName('ck-swiper')[0]
@@ -50,8 +86,10 @@ export default {
 		this.swiperItemDom = document.querySelectorAll('.ck-swiper-item')
 		this.imgItemLen = this.swiperItemDom.length
 		this.swiperWidth = this.swiperDom.clientWidth
+		this.timeInterval()
 		this.swiperDom.addEventListener('touchstart', e => {
 			let touch = e.changedTouches[0]
+			clearInterval(this.timer)
 			this.startPoint = {
 				x: touch.pageX,
 				y: touch.pageY
@@ -94,9 +132,7 @@ export default {
 				this.now += this.directionRight
 			}
 			if (this.isMove) {
-				this.translatex = this.now * -this.swiperWidth;
-				this.listDom.style.transition = '0.3s';
-				this.listDom.style.transform = `translateX(${this.translatex}px)`;
+				this.gotoNextImage()
 
 				// 到达边界并且移动操作30%需要初始化位置 
 				if (this.hasNoImg && Math.abs(this.distaince.x) > this.swiperWidth * this.proportion) {
@@ -115,6 +151,9 @@ export default {
 					}, 300);
 				}
 			}
+			setTimeout(() => {
+				this.timeInterval()
+			}, 300)
 		})
 	}
 }
